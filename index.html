@@ -1,0 +1,758 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0b0d">
+<title>ASCEND — Personal Growth System</title>
+<style>
+:root{
+ --bg:#0b0b0d;--panel:#131316;--panel2:#19191d;--border:#29292e;
+ --text:#f1f0ed;--muted:#85848a;--accent:#c9a45b;--accent2:#e4c47e;
+ --success:#62bd91;--danger:#d87575;--radius:15px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;min-height:100vh}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app{display:none;min-height:100vh}
+.sidebar{width:245px;position:fixed;inset:0 auto 0 0;background:#101013;border-right:1px solid var(--border);padding:27px 17px;display:flex;flex-direction:column;z-index:5}
+.logo{font-size:25px;letter-spacing:5px;font-weight:800;padding:0 13px}
+.logo small{display:block;font-size:9px;letter-spacing:3px;color:var(--muted);font-weight:500;margin-top:6px}
+.profile-mini{display:flex;align-items:center;gap:11px;padding:20px 12px;margin:23px 0 17px;border:1px solid var(--border);border-radius:12px}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(140deg,var(--accent),#66502b);display:grid;place-items:center;color:#15120c;font-weight:800}
+.profile-mini strong{font-size:12px;display:block}
+.profile-mini span{font-size:10px;color:var(--muted)}
+.nav-label{font-size:9px;color:#66656b;letter-spacing:2px;padding:15px 12px 8px}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav button{border:0;background:transparent;color:#99989e;text-align:left;padding:11px 13px;border-radius:9px;font-size:12px;display:flex;align-items:center;gap:12px;transition:.2s}
+.nav button:hover,.nav button.active{background:rgba(201,164,91,.12);color:var(--accent2)}
+.nav button.active{border-left:2px solid var(--accent)}
+.nav-icon{width:18px;text-align:center;font-size:15px}
+.sidebar-bottom{margin-top:auto}
+.sidebar-bottom button{width:100%}
+.main{margin-left:245px;padding:30px 38px 60px;max-width:1700px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;gap:15px}
+.breadcrumb{font-size:11px;color:var(--muted)}
+.top-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{width:37px;height:37px;border:1px solid var(--border);border-radius:10px;background:var(--panel);color:var(--text)}
+.date-label{font-size:11px;color:var(--muted)}
+h1{font-size:27px;letter-spacing:-.7px;margin:0 0 8px}
+.subtitle{font-size:12px;color:var(--muted);margin-bottom:25px}
+.grid{display:grid;gap:15px}
+.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:19px;min-width:0}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+.card-title{font-size:11px;color:#aaa9ae}
+.card-kicker{font-size:9px;color:var(--muted);letter-spacing:1px}
+.stat-number{font-size:29px;font-weight:650;letter-spacing:-1px;margin:8px 0}
+.stat-foot{font-size:10px;color:var(--muted)}
+.gold{color:var(--accent2)}
+.green{color:var(--success)}
+.progress{height:5px;background:#29292d;border-radius:10px;overflow:hidden;margin-top:12px}
+.progress span{height:100%;display:block;background:var(--accent);border-radius:10px;transition:width .3s}
+.content-grid{grid-template-columns:minmax(0,1.55fr) minmax(270px,.85fr);margin-bottom:16px}
+.task-list{display:flex;flex-direction:column;gap:9px}
+.task{display:flex;align-items:center;gap:11px;padding:12px;background:var(--panel2);border-radius:10px;border:1px solid transparent}
+.task:hover{border-color:var(--border)}
+.task input{accent-color:var(--accent);width:16px;height:16px}
+.task-main{flex:1;min-width:0}
+.task-main strong{font-size:12px;font-weight:550;display:block;overflow-wrap:anywhere}
+.task-main small{color:var(--muted);font-size:10px}
+.task.done strong{text-decoration:line-through;color:#777}
+.tag{font-size:9px;padding:5px 8px;border-radius:20px;background:rgba(201,164,91,.12);color:var(--accent2);white-space:nowrap}
+.add-row{display:flex;gap:8px;margin-top:13px}
+input,textarea,select{background:#1a1a1e;color:var(--text);border:1px solid var(--border);border-radius:9px;padding:11px;outline:none;width:100%;font-size:12px}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:90px}
+.btn{border:1px solid var(--border);background:#202024;color:var(--text);padding:10px 14px;border-radius:9px;font-size:11px;transition:.2s}
+.btn:hover{border-color:var(--accent);color:var(--accent2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#17130c;font-weight:700}
+.btn.danger{color:var(--danger)}
+.btn.small{padding:6px 9px;font-size:10px}
+.full{width:100%}
+.chart{height:170px;display:flex;align-items:end;gap:10px;padding:12px 2px 0}
+.bar-wrap{height:100%;flex:1;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:8px}
+.bar{width:100%;max-width:34px;background:linear-gradient(0deg,var(--accent),var(--accent2));border-radius:5px 5px 2px 2px;min-height:3px;transition:height .3s}
+.bar-label{font-size:9px;color:var(--muted)}
+.chart-legend{font-size:10px;color:var(--muted);margin-top:10px}
+.category-row{display:flex;align-items:center;gap:10px;margin:13px 0}
+.category-row>span:first-child{font-size:11px;flex:1}
+.category-row .progress{width:42%;margin:0}
+.category-row small{width:30px;text-align:right;color:var(--muted)}
+.section{display:none}
+.section.active{display:block}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:23px;flex-wrap:wrap}
+.section-head h1{margin:0}
+.two-col{grid-template-columns:repeat(2,minmax(0,1fr))}
+.three-col{grid-template-columns:repeat(3,minmax(0,1fr))}
+.list-empty{text-align:center;padding:35px 15px;color:var(--muted);font-size:12px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.form-field label{display:block;font-size:10px;color:var(--muted);margin-bottom:7px}
+.form-field.wide{grid-column:1/-1}
+.item-card{background:var(--panel2);border:1px solid var(--border);padding:15px;border-radius:12px;margin-bottom:10px}
+.item-card h3{font-size:13px;margin:0 0 7px}
+.item-card p{font-size:11px;color:var(--muted);line-height:1.6;margin:5px 0}
+.item-actions{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.goal-line{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin:12px 0 5px}
+.level-box{display:flex;align-items:center;gap:16px}
+.level-circle{width:70px;height:70px;border:2px solid var(--accent);border-radius:50%;display:grid;place-items:center;color:var(--accent2);font-size:22px;font-weight:700;flex-shrink:0}
+.achievement{min-height:120px}
+.achievement .medal{font-size:25px;margin-bottom:12px}
+.achievement.locked{opacity:.45}
+.journal-entry{border-left:2px solid var(--accent);padding:12px 15px;margin:15px 0;background:var(--panel2);border-radius:0 10px 10px 0}
+.journal-entry strong{font-size:12px}
+.journal-entry p{font-size:11px;color:var(--muted);line-height:1.6}
+.music-frame{width:100%;height:230px;border:0;border-radius:12px;background:#202024}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 0;border-bottom:1px solid var(--border)}
+.settings-row:last-child{border:0}
+.settings-row strong{font-size:12px;display:block}
+.settings-row small{font-size:10px;color:var(--muted);display:block;margin-top:5px}
+.swatches{display:flex;gap:9px;flex-wrap:wrap}
+.swatch{width:27px;height:27px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+.swatch.selected{outline:2px solid var(--text);outline-offset:3px}
+.toast{position:fixed;bottom:25px;right:25px;background:#242428;border:1px solid var(--border);padding:13px 18px;border-radius:10px;font-size:12px;z-index:20;opacity:0;transform:translateY(10px);transition:.25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.mobile-menu{display:none}
+#intro{position:fixed;inset:0;background:#030407;z-index:100;overflow:hidden}
+#space{width:100%;height:100%;display:block}
+.intro-label{position:absolute;bottom:11%;width:100%;text-align:center;letter-spacing:7px;font-size:12px;color:#d9c08a;text-shadow:0 0 20px #c58e3d}
+.intro-skip{position:absolute;right:30px;bottom:25px;background:transparent;border:1px solid #555;color:#bbb;padding:9px 15px;border-radius:20px;font-size:10px}
+.intro-sub{display:block;font-size:9px;letter-spacing:3px;margin-top:10px;color:#888}
+@media(max-width:1050px){.sidebar{width:205px}.main{margin-left:205px;padding:25px}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){
+ .sidebar{transform:translateX(-100%);transition:.25s;width:250px}
+ .sidebar.open{transform:translateX(0)}
+ .main{margin-left:0;padding:20px 15px 45px}
+ .mobile-menu{display:block}
+ .content-grid,.two-col,.three-col{grid-template-columns:1fr}
+ .stats{gap:9px}
+ .card{padding:15px}
+ h1{font-size:23px}
+ .topbar{margin-bottom:24px}
+ .date-label{display:none}
+}
+@media(max-width:390px){.stats{grid-template-columns:1fr 1fr}.stat-number{font-size:24px}}
+</style>
+</head>
+<body>
+
+<div id="intro">
+ <canvas id="space"></canvas>
+ <div class="intro-label">ASCEND<span class="intro-sub">PERSONAL GROWTH SYSTEM</span></div>
+ <button class="intro-skip" onclick="finishIntro()">ПРОПУСТИТЬ INTRO →</button>
+</div>
+
+<div class="app" id="app">
+<aside class="sidebar" id="sidebar">
+ <div class="logo">ASCEND<small>PERSONAL GROWTH SYSTEM</small></div>
+ <div class="profile-mini">
+  <div class="avatar" id="miniAvatar">A</div>
+  <div><strong id="miniName">Пользователь</strong><span id="miniLevel">Уровень 1 · Новичок</span></div>
+ </div>
+ <div class="nav-label">WORKSPACE</div>
+ <nav class="nav">
+  <button class="active" data-page="overview"><span class="nav-icon">◫</span>Overview</button>
+  <button data-page="planner"><span class="nav-icon">☷</span>Planner</button>
+  <button data-page="projects"><span class="nav-icon">▣</span>Projects</button>
+  <button data-page="goals"><span class="nav-icon">◎</span>Goals</button>
+  <button data-page="development"><span class="nav-icon">◇</span>Development</button>
+  <button data-page="analytics"><span class="nav-icon">▥</span>Analytics</button>
+  <button data-page="journal"><span class="nav-icon">▤</span>Journal</button>
+  <button data-page="achievements"><span class="nav-icon">✧</span>Achievements</button>
+  <button data-page="music"><span class="nav-icon">♫</span>Music</button>
+ </nav>
+ <div class="nav-label">PERSONAL</div>
+ <nav class="nav">
+  <button data-page="profile"><span class="nav-icon">◉</span>Profile</button>
+  <button data-page="settings"><span class="nav-icon">⚙</span>Settings</button>
+ </nav>
+ <div class="sidebar-bottom">
+  <div class="card" style="padding:13px">
+   <div class="card-kicker">YOUR PROGRESS</div>
+   <div style="font-size:12px;margin-top:8px" id="sideXP">0 XP</div>
+   <div class="progress"><span id="sideXPBar" style="width:0%"></span></div>
+  </div>
+ </div>
+</aside>
+
+<main class="main">
+ <header class="topbar">
+  <div style="display:flex;align-items:center;gap:12px">
+   <button class="icon-btn mobile-menu" onclick="toggleMenu()">☰</button>
+   <div class="breadcrumb">ASCEND / <span id="crumb">OVERVIEW</span></div>
+  </div>
+  <div class="top-actions">
+   <span class="date-label" id="todayLabel"></span>
+   <button class="icon-btn" title="Настройки" onclick="showPage('settings')">⚙</button>
+   <div class="avatar" id="topAvatar">A</div>
+  </div>
+ </header>
+
+<section class="section active" id="page-overview">
+ <h1>Добро пожаловать, <span class="gold" id="welcomeName">пользователь</span></h1>
+ <div class="subtitle">Каждый день — возможность стать лучше.</div>
+ <div class="grid stats">
+  <div class="card"><div class="card-title">Выполнено задач</div><div class="stat-number" id="statDone">0</div><div class="stat-foot">Всего выполнено</div></div>
+  <div class="card"><div class="card-title">Общая продуктивность</div><div class="stat-number gold" id="statRate">0%</div><div class="stat-foot">От всех созданных задач</div></div>
+  <div class="card"><div class="card-title">Текущая серия</div><div class="stat-number" id="statStreak">0 <span style="font-size:13px">дней</span></div><div class="stat-foot">Дней с выполненными задачами</div></div>
+  <div class="card"><div class="card-title">Уровень развития</div><div class="stat-number gold" id="statLevel">1</div><div class="stat-foot" id="statXP">0 XP накоплено</div></div>
+ </div>
+ <div class="grid content-grid">
+  <div class="card">
+   <div class="card-head"><div class="card-title">Задачи на сегодня</div><button class="btn small" onclick="showPage('planner')">Все задачи →</button></div>
+   <div id="overviewTasks" class="task-list"></div>
+   <div class="add-row"><input id="quickTask" placeholder="Добавить задачу..." onkeydown="if(event.key==='Enter')quickAdd()"><button class="btn primary" onclick="quickAdd()">+</button></div>
+  </div>
+  <div class="card">
+   <div class="card-head"><div class="card-title">Уровень и опыт</div><span class="tag" id="levelTag">LEVEL 1</span></div>
+   <div class="level-box"><div class="level-circle" id="levelCircle">1</div><div><strong id="levelName">Новичок</strong><p class="stat-foot" id="xpCaption">0 / 100 XP до следующего уровня</p></div></div>
+   <div class="progress" style="height:7px;margin-top:20px"><span id="levelBar" style="width:0%"></span></div>
+   <div class="card-head" style="margin-top:23px;margin-bottom:8px"><div class="card-title">Последнее достижение</div></div>
+   <div id="latestAchievement" class="stat-foot">Выполни первую задачу, чтобы получить достижение.</div>
+  </div>
+ </div>
+ <div class="grid content-grid">
+  <div class="card">
+   <div class="card-head"><div class="card-title">Активность за неделю</div><span class="card-kicker">ВЫПОЛНЕННЫЕ ЗАДАЧИ</span></div>
+   <div class="chart" id="weekChart"></div>
+   <div class="chart-legend">Количество выполненных задач по дням</div>
+  </div>
+  <div class="card">
+   <div class="card-head"><div class="card-title">Категории развития</div></div>
+   <div id="categoryStats"></div>
+  </div>
+ </div>
+</section>
+
+<section class="section" id="page-planner">
+ <div class="section-head"><div><h1>Planner</h1><div class="subtitle">Планируй действия. Создавай результат.</div></div></div>
+ <div class="card" style="margin-bottom:16px">
+  <div class="card-head"><div class="card-title">Новая задача</div><span class="card-kicker">TASK CREATION</span></div>
+  <div class="form-grid">
+   <div class="form-field wide"><label>Название задачи</label><input id="taskTitle" placeholder="Например: прочитать 20 страниц"></div>
+   <div class="form-field"><label>Дата</label><input id="taskDate" type="date"></div>
+   <div class="form-field"><label>Период</label><select id="taskPeriod"><option value="day">День</option><option value="week">Неделя</option><option value="month">Месяц</option></select></div>
+   <div class="form-field"><label>Категория</label><select id="taskCategory"><option>Дисциплина</option><option>Образование</option><option>Физическая форма</option><option>Интеллект</option><option>Финансы</option><option>Социальные навыки</option><option>Личное</option></select></div>
+   <div class="form-field"><label>Приоритет</label><select id="taskPriority"><option>Обычный</option><option>Высокий</option><option>Низкий</option></select></div>
+   <div class="form-field wide"><button class="btn primary" onclick="addTask()">+ Создать задачу</button></div>
+  </div>
+ </div>
+ <div class="card">
+  <div class="card-head"><div class="card-title">Мои задачи</div><select id="taskFilter" style="width:auto" onchange="renderTasks()"><option value="all">Все задачи</option><option value="day">День</option><option value="week">Неделя</option><option value="month">Месяц</option><option value="done">Выполненные</option><option value="active">Активные</option></select></div>
+  <div id="taskList"></div>
+ </div>
+</section>
+
+<section class="section" id="page-projects">
+ <div class="section-head"><div><h1>Projects</h1><div class="subtitle">Большие результаты начинаются с маленьких шагов.</div></div></div>
+ <div class="card" style="margin-bottom:16px">
+  <div class="card-title" style="margin-bottom:15px">Новый проект</div>
+  <div class="form-grid">
+   <div class="form-field"><label>Название</label><input id="projectTitle" placeholder="Название проекта"></div>
+   <div class="form-field"><label>Описание</label><input id="projectDesc" placeholder="Краткое описание"></div>
+   <div class="form-field"><label>Срок завершения</label><input id="projectDate" type="date"></div>
+   <div class="form-field"><label>Категория</label><select id="projectCategory"><option>Личное</option><option>Образование</option><option>Работа</option><option>Физическая форма</option></select></div>
+   <div class="form-field wide"><button class="btn primary" onclick="addProject()">Создать проект</button></div>
+  </div>
+ </div>
+ <div id="projectList"></div>
+</section>
+
+<section class="section" id="page-goals">
+ <div class="section-head"><div><h1>Goals</h1><div class="subtitle">Определи направление своего движения.</div></div></div>
+ <div class="card" style="margin-bottom:16px">
+  <div class="card-title" style="margin-bottom:15px">Новая цель</div>
+  <div class="form-grid">
+   <div class="form-field"><label>Название цели</label><input id="goalTitle" placeholder="Например: выучить английский"></div>
+   <div class="form-field"><label>Категория</label><select id="goalCategory"><option>Образование</option><option>Физическая форма</option><option>Дисциплина</option><option>Финансы</option><option>Интеллект</option><option>Социальные навыки</option><option>Личное</option></select></div>
+   <div class="form-field"><label>Желаемый результат</label><input id="goalTarget" type="number" min="1" value="100"></div>
+   <div class="form-field"><label>Срок</label><input id="goalDate" type="date"></div>
+   <div class="form-field wide"><button class="btn primary" onclick="addGoal()">Добавить цель</button></div>
+  </div>
+ </div>
+ <div id="goalList"></div>
+</section>
+
+<section class="section" id="page-development">
+ <div class="section-head"><div><h1>Development</h1><div class="subtitle">Развивай разные стороны своей личности.</div></div></div>
+ <div class="grid three-col" id="developmentGrid"></div>
+ <div class="card" style="margin-top:16px"><div class="card-title">Как развивается твоя система</div><p class="stat-foot" style="line-height:1.8">Выполняй задачи и выбирай соответствующие категории. ASCEND будет учитывать выполненные действия и обновлять показатели направлений. Это условная игровая модель прогресса, а не объективная оценка личности.</p></div>
+</section>
+
+<section class="section" id="page-analytics">
+ <div class="section-head"><div><h1>Analytics</h1><div class="subtitle">Твои результаты в цифрах.</div></div></div>
+ <div class="grid stats">
+  <div class="card"><div class="card-title">Всего задач</div><div class="stat-number" id="analyticsTotal">0</div></div>
+  <div class="card"><div class="card-title">Выполнено</div><div class="stat-number green" id="analyticsDone">0</div></div>
+  <div class="card"><div class="card-title">В процессе</div><div class="stat-number gold" id="analyticsActive">0</div></div>
+  <div class="card"><div class="card-title">Целей достигнуто</div><div class="stat-number" id="analyticsGoals">0</div></div>
+ </div>
+ <div class="grid content-grid">
+  <div class="card"><div class="card-head"><div class="card-title">Продуктивность за последние 7 дней</div></div><div class="chart" id="analyticsChart"></div></div>
+  <div class="card"><div class="card-title">Выполнение задач</div><div class="stat-number gold" id="analyticsPercent">0%</div><div class="progress"><span id="analyticsBar"></span></div><p class="stat-foot">Отношение выполненных задач ко всем созданным.</p></div>
+ </div>
+ <div class="card"><div class="card-title">Результаты по направлениям</div><div id="analyticsCategories" style="margin-top:15px"></div></div>
+</section>
+
+<section class="section" id="page-journal">
+ <div class="section-head"><div><h1>Journal</h1><div class="subtitle">Остановись на минуту и оцени свой день.</div></div></div>
+ <div class="card" style="margin-bottom:16px">
+  <div class="card-title" style="margin-bottom:15px">Ежедневный отчёт</div>
+  <div class="form-grid">
+   <div class="form-field"><label>Дата</label><input type="date" id="journalDate"></div>
+   <div class="form-field"><label>Настроение</label><select id="journalMood"><option>😊 Отличное</option><option>🙂 Хорошее</option><option>😐 Нормальное</option><option>😔 Не очень</option><option>😞 Плохое</option></select></div>
+   <div class="form-field wide"><label>Что сегодня удалось сделать?</label><textarea id="journalWins" placeholder="Запиши свои достижения..."></textarea></div>
+   <div class="form-field wide"><label>Что не получилось?</label><textarea id="journalMissed" placeholder="Что можно улучшить?"></textarea></div>
+   <div class="form-field wide"><label>Планы на завтра</label><textarea id="journalTomorrow" placeholder="Что хочешь сделать завтра?"></textarea></div>
+   <div class="form-field wide"><button class="btn primary" onclick="saveJournal()">Сохранить отчёт</button></div>
+  </div>
+ </div>
+ <div class="card"><div class="card-title">История записей</div><div id="journalHistory"></div></div>
+</section>
+
+<section class="section" id="page-achievements">
+ <div class="section-head"><div><h1>Achievements</h1><div class="subtitle">Каждый результат заслуживает внимания.</div></div></div>
+ <div class="grid stats">
+  <div class="card"><div class="card-title">Открыто достижений</div><div class="stat-number gold" id="achievementCount">0</div></div>
+  <div class="card"><div class="card-title">Всего доступно</div><div class="stat-number">8</div></div>
+  <div class="card"><div class="card-title">Твой уровень</div><div class="stat-number" id="achievementLevel">1</div></div>
+  <div class="card"><div class="card-title">Опыт</div><div class="stat-number gold" id="achievementXP">0</div></div>
+ </div>
+ <div class="grid three-col" id="achievementGrid"></div>
+</section>
+
+<section class="section" id="page-music">
+ <div class="section-head"><div><h1>Music</h1><div class="subtitle">Музыка для твоего ритма.</div></div></div>
+ <div class="card">
+  <div class="card-title" style="margin-bottom:10px">Яндекс Музыка</div>
+  <p class="stat-foot" style="line-height:1.7">Вставь HTML-код плеера, полученный через функцию «Поделиться» в Яндекс Музыке. Плеер отобразится внутри ASCEND. Доступность отдельных треков может зависеть от региона и подписки.</p>
+  <textarea id="musicCode" placeholder="Вставь сюда HTML-код плеера Яндекс Музыки..." style="min-height:115px"></textarea>
+  <div class="item-actions"><button class="btn primary" onclick="loadMusic()">Добавить плеер</button><button class="btn" onclick="clearMusic()">Удалить плеер</button></div>
+  <div id="musicPlayer" style="margin-top:18px"></div>
+ </div>
+</section>
+
+<section class="section" id="page-profile">
+ <div class="section-head"><div><h1>Profile</h1><div class="subtitle">Твоя личная информация и результаты.</div></div></div>
+ <div class="grid two-col">
+  <div class="card">
+   <div class="card-title" style="margin-bottom:16px">Профиль пользователя</div>
+   <div class="form-field"><label>Имя</label><input id="profileName" placeholder="Твоё имя"></div>
+   <div class="form-field" style="margin-top:12px"><label>О себе</label><textarea id="profileBio" placeholder="Расскажи немного о себе"></textarea></div>
+   <button class="btn primary" style="margin-top:12px" onclick="saveProfile()">Сохранить профиль</button>
+  </div>
+  <div class="card">
+   <div class="card-title" style="margin-bottom:16px">Общая статистика</div>
+   <div class="settings-row"><div><strong>Уровень</strong><small>Текущий ранг</small></div><strong id="profileLevel">1</strong></div>
+   <div class="settings-row"><div><strong>Опыт</strong><small>Всего заработано</small></div><strong id="profileXP">0 XP</strong></div>
+   <div class="settings-row"><div><strong>Задачи</strong><small>Выполнено</small></div><strong id="profileTasks">0</strong></div>
+   <div class="settings-row"><div><strong>Цели</strong><small>Всего создано</small></div><strong id="profileGoals">0</strong></div>
+  </div>
+ </div>
+</section>
+
+<section class="section" id="page-settings">
+ <div class="section-head"><div><h1>Settings</h1><div class="subtitle">Настрой ASCEND под себя.</div></div></div>
+ <div class="grid two-col">
+  <div class="card">
+   <div class="card-title">Внешний вид</div>
+   <div class="settings-row"><div><strong>Цвет интерфейса</strong><small>Выбери основной акцент</small></div></div>
+   <div class="swatches" id="swatches">
+    <button class="swatch selected" style="background:#c9a45b" data-color="#c9a45b" title="Gold"></button>
+    <button class="swatch" style="background:#6688ff" data-color="#6688ff" title="Blue"></button>
+    <button class="swatch" style="background:#a477e8" data-color="#a477e8" title="Purple"></button>
+    <button class="swatch" style="background:#43b88c" data-color="#43b88c" title="Emerald"></button>
+    <button class="swatch" style="background:#e477a5" data-color="#e477a5" title="Rose"></button>
+    <button class="swatch" style="background:#e58a48" data-color="#e58a48" title="Orange"></button>
+    <button class="swatch" style="background:#e5e5e5" data-color="#e5e5e5" title="Silver"></button>
+   </div>
+   <div class="settings-row"><div><strong>Тема</strong><small>Светлая или тёмная</small></div><select id="themeSelect" style="width:120px" onchange="setTheme(this.value)"><option value="dark">Тёмная</option><option value="light">Светлая</option></select></div>
+   <div class="settings-row"><div><strong>Плотность интерфейса</strong><small>Размер отступов</small></div><select id="densitySelect" style="width:120px" onchange="setDensity(this.value)"><option value="normal">Обычная</option><option value="compact">Компактная</option></select></div>
+  </div>
+  <div class="card">
+   <div class="card-title">Настройки заставки</div>
+   <div class="settings-row"><div><strong>Показывать заставку</strong><small>Космическая анимация при запуске</small></div><input type="checkbox" id="introToggle" style="width:18px" checked onchange="saveSetting('intro',this.checked)"></div>
+   <div class="settings-row"><div><strong>Разрешить пропуск</strong><small>Кнопка пропуска заставки</small></div><input type="checkbox" id="skipToggle" style="width:18px" checked onchange="saveSetting('skip',this.checked)"></div>
+   <div class="settings-row"><div><strong>Звук заставки</strong><small>В этой версии отключён</small></div><span class="tag">OFF</span></div>
+   <div class="settings-row"><div><strong>Сбросить оформление</strong><small>Вернуть стандартный стиль</small></div><button class="btn small" onclick="resetAppearance()">Сбросить</button></div>
+  </div>
+  <div class="card">
+   <div class="card-title">Уведомления</div>
+   <div class="settings-row"><div><strong>Напоминания о задачах</strong><small>Настройка браузерных напоминаний</small></div><input type="checkbox" id="notifyToggle" style="width:18px" onchange="toggleNotifications(this.checked)"></div>
+   <p class="stat-foot">Уведомления браузера могут требовать отдельного разрешения. В этой версии нет фонового сервера, поэтому напоминания не гарантируются, когда сайт закрыт.</p>
+  </div>
+  <div class="card">
+   <div class="card-title">Данные</div>
+   <div class="settings-row"><div><strong>Экспорт данных</strong><small>Скачать резервную копию</small></div><button class="btn small" onclick="exportData()">Экспорт</button></div>
+   <div class="settings-row"><div><strong>Импорт данных</strong><small>Восстановить резервную копию</small></div><button class="btn small" onclick="document.getElementById('importFile').click()">Импорт</button><input id="importFile" type="file" accept=".json" hidden onchange="importData(event)"></div>
+   <div class="settings-row"><div><strong>Удалить все данные</strong><small>Необратимое действие</small></div><button class="btn small danger" onclick="clearAllData()">Удалить</button></div>
+  </div>
+ </div>
+</section>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ASCEND — local single-file prototype */
+const KEY='ascend_personal_growth_v1';
+const today=()=>new Date().toISOString().slice(0,10);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const defaults={
+ tasks:[],projects:[],goals:[],journal:[],xp:0,profile:{name:'Пользователь',bio:''},
+ settings:{accent:'#c9a45b',theme:'dark',density:'normal',intro:true,skip:true},
+ music:'',notifications:false
+};
+let data=loadData();
+function loadData(){
+ try{return {...defaults,...JSON.parse(localStorage.getItem(KEY)||'{}')}}
+ catch(e){return structuredClone(defaults)}
+}
+function save(){
+ try{localStorage.setItem(KEY,JSON.stringify(data))}
+ catch(e){toast('Не удалось сохранить данные. Возможно, хранилище заполнено.')}
+}
+function toast(message){
+ const el=document.getElementById('toast');el.textContent=message;el.classList.add('show');
+ clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.classList.remove('show'),2500);
+}
+function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function showPage(page){
+ document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
+ document.getElementById('page-'+page).classList.add('active');
+ document.getElementById('crumb').textContent=page.toUpperCase();
+ document.getElementById('sidebar').classList.remove('open');
+ renderAll();
+ window.scrollTo(0,0);
+}
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+function toggleMenu(){document.getElementById('sidebar').classList.toggle('open')}
+function level(){return Math.floor(data.xp/100)+1}
+function levelProgress(){return data.xp%100}
+function rank(){let l=level();return l>=25?'Мастер продуктивности':l>=10?'Дисциплинированный':l>=5?'Исследователь':'Новичок'}
+function addXP(n){data.xp+=n;save()}
+function categoryCount(cat){
+ return data.tasks.filter(t=>t.category===cat&&t.done).length;
+}
+function completed(){return data.tasks.filter(t=>t.done).length}
+function taskRate(){return data.tasks.length?Math.round(completed()/data.tasks.length*100):0}
+function addTask(){
+ const title=document.getElementById('taskTitle').value.trim();
+ if(!title)return toast('Введи название задачи');
+ data.tasks.push({id:uid(),title,date:document.getElementById('taskDate').value||today(),period:document.getElementById('taskPeriod').value,category:document.getElementById('taskCategory').value,priority:document.getElementById('taskPriority').value,done:false,created:today()});
+ document.getElementById('taskTitle').value='';save();renderAll();toast('Задача добавлена');
+}
+function quickAdd(){
+ const input=document.getElementById('quickTask'),title=input.value.trim();if(!title)return;
+ data.tasks.push({id:uid(),title,date:today(),period:'day',category:'Личное',priority:'Обычный',done:false,created:today()});
+ input.value='';save();renderAll();toast('Задача добавлена');
+}
+function toggleTask(id,checked){
+ const t=data.tasks.find(x=>x.id===id);if(!t||t.done===checked)return;
+ t.done=checked;
+ if(checked){t.completedAt=today();addXP(10)}else{t.completedAt=null;data.xp=Math.max(0,data.xp-10)}
+ save();renderAll();
+}
+function deleteTask(id){if(!confirm('Удалить эту задачу?'))return;data.tasks=data.tasks.filter(t=>t.id!==id);save();renderAll()}
+function taskHTML(t){
+ return `<div class="task ${t.done?'done':''}">
+ <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}',this.checked)">
+ <div class="task-main"><strong>${safe(t.title)}</strong><small>${safe(t.category)} · ${safe(t.date||'Без даты')}</small></div>
+ <span class="tag">${safe(t.priority)}</span>
+ <button class="btn small" onclick="deleteTask('${t.id}')">×</button></div>`;
+}
+function renderTasks(){
+ const filter=document.getElementById('taskFilter')?.value||'all';
+ let tasks=[...data.tasks].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+ if(filter==='done')tasks=tasks.filter(t=>t.done);
+ else if(filter==='active')tasks=tasks.filter(t=>!t.done);
+ else if(['day','week','month'].includes(filter))tasks=tasks.filter(t=>t.period===filter);
+ document.getElementById('taskList').innerHTML=tasks.length?tasks.map(taskHTML).join(''):'<div class="list-empty">Здесь пока нет задач. Добавь свою первую задачу выше.</div>';
+}
+function addProject(){
+ const title=document.getElementById('projectTitle').value.trim();if(!title)return toast('Введи название проекта');
+ data.projects.push({id:uid(),title,desc:document.getElementById('projectDesc').value,date:document.getElementById('projectDate').value,category:document.getElementById('projectCategory').value,done:false});
+ ['projectTitle','projectDesc','projectDate'].forEach(id=>document.getElementById(id).value='');
+ save();renderAll();toast('Проект создан');
+}
+function toggleProject(id){let p=data.projects.find(x=>x.id===id);if(!p)return;p.done=!p.done;if(p.done)addXP(25);else data.xp=Math.max(0,data.xp-25);save();renderAll()}
+function deleteProject(id){if(!confirm('Удалить проект?'))return;data.projects=data.projects.filter(x=>x.id!==id);save();renderAll()}
+function renderProjects(){
+ const el=document.getElementById('projectList');
+ el.innerHTML=data.projects.length?data.projects.map(p=>`<div class="item-card"><div style="display:flex;justify-content:space-between;gap:10px"><h3>${safe(p.title)}</h3><span class="tag">${p.done?'Завершён':'В работе'}</span></div><p>${safe(p.desc||'Без описания')}</p><p>${safe(p.category)} ${p.date?'· Срок: '+safe(p.date):''}</p><div class="item-actions"><button class="btn small" onclick="toggleProject('${p.id}')">${p.done?'Вернуть в работу':'Завершить'}</button><button class="btn small danger" onclick="deleteProject('${p.id}')">Удалить</button></div></div>`).join(''):'<div class="list-empty">Пока нет проектов.</div>';
+}
+function addGoal(){
+ const title=document.getElementById('goalTitle').value.trim();if(!title)return toast('Введи название цели');
+ data.goals.push({id:uid(),title,category:document.getElementById('goalCategory').value,target:Math.max(1,+document.getElementById('goalTarget').value||100),progress:0,date:document.getElementById('goalDate').value,done:false});
+ document.getElementById('goalTitle').value='';save();renderAll();toast('Цель создана');
+}
+function changeGoal(id,delta){
+ const g=data.goals.find(x=>x.id===id);if(!g||g.done)return;
+ const old=g.progress;g.progress=Math.max(0,Math.min(g.target,g.progress+delta));
+ if(old<g.target&&g.progress>=g.target){g.done=true;addXP(50);toast('Цель достигнута! +50 XP')}
+ save();renderAll();
+}
+function deleteGoal(id){if(!confirm('Удалить цель?'))return;data.goals=data.goals.filter(x=>x.id!==id);save();renderAll()}
+function renderGoals(){
+ const el=document.getElementById('goalList');
+ el.innerHTML=data.goals.length?data.goals.map(g=>`<div class="item-card"><div style="display:flex;justify-content:space-between;gap:10px"><h3>${safe(g.title)}</h3><span class="tag">${g.done?'Достигнута':'В процессе'}</span></div><p>${safe(g.category)} ${g.date?'· До '+safe(g.date):''}</p><div class="goal-line"><span>Прогресс</span><span>${g.progress} / ${g.target}</span></div><div class="progress"><span style="width:${Math.min(100,g.progress/g.target*100)}%"></span></div><div class="item-actions"><button class="btn small" onclick="changeGoal('${g.id}',1)">+1</button><button class="btn small" onclick="changeGoal('${g.id}',10)">+10</button><button class="btn small" onclick="changeGoal('${g.id}',-1)">−1</button><button class="btn small danger" onclick="deleteGoal('${g.id}')">Удалить</button></div></div>`).join(''):'<div class="list-empty">Создай свою первую цель.</div>';
+}
+function saveJournal(){
+ const date=document.getElementById('journalDate').value||today();
+ const entry={id:uid(),date,mood:document.getElementById('journalMood').value,wins:document.getElementById('journalWins').value,missed:document.getElementById('journalMissed').value,tomorrow:document.getElementById('journalTomorrow').value};
+ const index=data.journal.findIndex(x=>x.date===date);
+ if(index>=0)data.journal[index]=entry;else data.journal.unshift(entry);
+ save();renderJournal();toast('Отчёт сохранён');
+}
+function renderJournal(){
+ document.getElementById('journalHistory').innerHTML=data.journal.length?[...data.journal].sort((a,b)=>b.date.localeCompare(a.date)).map(j=>`<div class="journal-entry"><strong>${safe(j.date)} · ${safe(j.mood)}</strong><p><b>Достижения:</b> ${safe(j.wins||'Не указано')}</p><p><b>Что улучшить:</b> ${safe(j.missed||'Не указано')}</p><p><b>Завтра:</b> ${safe(j.tomorrow||'Не указано')}</p></div>`).join(''):'<div class="list-empty">Записей пока нет.</div>';
+}
+const categories=['Дисциплина','Образование','Физическая форма','Интеллект','Финансы','Социальные навыки','Личное'];
+const categoryIcons=['◈','▤','♧','◇','◉','✧','○'];
+function renderDevelopment(){
+ document.getElementById('developmentGrid').innerHTML=categories.map((c,i)=>{
+ const count=categoryCount(c),score=Math.min(100,count*10);
+ return `<div class="card"><div class="card-head"><span style="font-size:21px;color:var(--accent)">${categoryIcons[i]}</span><span class="card-kicker">AREA 0${i+1}</span></div><h3 style="font-size:13px">${c}</h3><div class="stat-number">${score}<span style="font-size:12px;color:var(--muted)"> / 100</span></div><div class="progress"><span style="width:${score}%"></span></div><p class="stat-foot">${count} выполненных задач</p></div>`;
+ }).join('');
+}
+function daysLast7(){
+ const arr=[];for(let i=6;i>=0;i--){let d=new Date();d.setDate(d.getDate()-i);arr.push(d.toISOString().slice(0,10))}return arr;
+}
+function countForDate(date){return data.tasks.filter(t=>t.done&&t.completedAt===date).length}
+function chartHTML(){
+ const dates=daysLast7(),max=Math.max(1,...dates.map(countForDate));
+ return dates.map(d=>{const n=countForDate(d);let label=new Date(d+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'short'});return `<div class="bar-wrap"><div class="bar" title="${n} задач" style="height:${Math.max(3,n/max*100)}%"></div><span class="bar-label">${label}</span></div>`}).join('');
+}
+function renderCharts(){
+ document.getElementById('weekChart').innerHTML=chartHTML();
+ document.getElementById('analyticsChart').innerHTML=chartHTML();
+ const cats=categories.map(c=>({name:c,count:categoryCount(c)}));
+ document.getElementById('categoryStats').innerHTML=cats.map(c=>`<div class="category-row"><span>${c.name}</span><div class="progress"><span style="width:${Math.min(100,c.count*10)}%"></span></div><small>${c.count}</small></div>`).join('');
+ document.getElementById('analyticsCategories').innerHTML=cats.map(c=>`<div class="category-row"><span>${c.name}</span><div class="progress"><span style="width:${Math.min(100,c.count*10)}%"></span></div><small>${c.count}</small></div>`).join('');
+}
+function streak(){
+ const set=new Set(data.tasks.filter(t=>t.done&&t.completedAt).map(t=>t.completedAt));
+ let count=0,d=new Date();
+ if(!set.has(today()))d.setDate(d.getDate()-1);
+ while(set.has(d.toISOString().slice(0,10))){count++;d.setDate(d.getDate()-1)}
+ return count;
+}
+const achievements=[
+ {id:'first',icon:'✧',name:'Первый шаг',desc:'Выполни первую задачу',check:()=>completed()>=1},
+ {id:'ten',icon:'◆',name:'Десятка',desc:'Выполни 10 задач',check:()=>completed()>=10},
+ {id:'fifty',icon:'✦',name:'Полсотни',desc:'Выполни 50 задач',check:()=>completed()>=50},
+ {id:'hundred',icon:'♛',name:'Сотня',desc:'Выполни 100 задач',check:()=>completed()>=100},
+ {id:'goal',icon:'◎',name:'Большая цель',desc:'Достигни одной цели',check:()=>data.goals.some(g=>g.done)},
+ {id:'project',icon:'▣',name:'Создатель',desc:'Заверши проект',check:()=>data.projects.some(p=>p.done)},
+ {id:'journal',icon:'▤',name:'Саморефлексия',desc:'Сохрани первый отчёт',check:()=>data.journal.length>=1},
+ {id:'streak',icon:'♨',name:'Стабильность',desc:'Собери серию из 7 дней',check:()=>streak()>=7}
+];
+function renderAchievements(){
+ const opened=achievements.filter(a=>a.check());
+ document.getElementById('achievementCount').textContent=opened.length;
+ document.getElementById('achievementLevel').textContent=level();
+ document.getElementById('achievementXP').textContent=data.xp;
+ document.getElementById('achievementGrid').innerHTML=achievements.map(a=>`<div class="card achievement ${a.check()?'':'locked'}"><div class="medal">${a.icon}</div><h3 style="font-size:13px;margin:0 0 7px">${a.name}</h3><p class="stat-foot">${a.desc}</p><span class="tag">${a.check()?'ОТКРЫТО':'ЗАКРЫТО'}</span></div>`).join('');
+ document.getElementById('latestAchievement').textContent=opened.length?opened[opened.length-1].name+' — достижение открыто':'Выполни первую задачу, чтобы получить достижение.';
+}
+function renderOverview(){
+ const todays=data.tasks.filter(t=>t.date===today());
+ document.getElementById('overviewTasks').innerHTML=todays.length?todays.slice(0,6).map(taskHTML).join(''):'<div class="list-empty">На сегодня задач нет. Добавь первую выше.</div>';
+ document.getElementById('statDone').textContent=completed();
+ document.getElementById('statRate').textContent=taskRate()+'%';
+ document.getElementById('statStreak').innerHTML=streak()+' <span style="font-size:13px">дней</span>';
+ document.getElementById('statLevel').textContent=level();
+ document.getElementById('statXP').textContent=data.xp+' XP накоплено';
+ document.getElementById('levelCircle').textContent=level();
+ document.getElementById('levelTag').textContent='LEVEL '+level();
+ document.getElementById('levelName').textContent=rank();
+ document.getElementById('xpCaption').textContent=levelProgress()+' / 100 XP до следующего уровня';
+ document.getElementById('levelBar').style.width=levelProgress()+'%';
+ document.getElementById('sideXP').textContent=data.xp+' XP';
+ document.getElementById('sideXPBar').style.width=levelProgress()+'%';
+ document.getElementById('miniLevel').textContent='Уровень '+level()+' · '+rank();
+}
+function renderAnalytics(){
+ document.getElementById('analyticsTotal').textContent=data.tasks.length;
+ document.getElementById('analyticsDone').textContent=completed();
+ document.getElementById('analyticsActive').textContent=data.tasks.length-completed();
+ document.getElementById('analyticsGoals').textContent=data.goals.filter(g=>g.done).length;
+ document.getElementById('analyticsPercent').textContent=taskRate()+'%';
+ document.getElementById('analyticsBar').style.width=taskRate()+'%';
+}
+function renderProfile(){
+ const p=data.profile;
+ document.getElementById('welcomeName').textContent=p.name||'пользователь';
+ document.getElementById('miniName').textContent=p.name||'Пользователь';
+ document.getElementById('miniAvatar').textContent=(p.name||'A')[0].toUpperCase();
+ document.getElementById('topAvatar').textContent=(p.name||'A')[0].toUpperCase();
+ document.getElementById('profileName').value=p.name||'';
+ document.getElementById('profileBio').value=p.bio||'';
+ document.getElementById('profileLevel').textContent=level();
+ document.getElementById('profileXP').textContent=data.xp+' XP';
+ document.getElementById('profileTasks').textContent=completed();
+ document.getElementById('profileGoals').textContent=data.goals.length;
+}
+function saveProfile(){
+ data.profile.name=document.getElementById('profileName').value.trim()||'Пользователь';
+ data.profile.bio=document.getElementById('profileBio').value;
+ save();renderAll();toast('Профиль сохранён');
+}
+function loadMusic(){
+ const code=document.getElementById('musicCode').value.trim();
+ if(!code)return toast('Вставь HTML-код плеера');
+ // Accept only iframe embed snippets; never execute arbitrary pasted scripts.
+ const match=code.match(/<iframe\b[^>]*src=["']([^"']+)["'][^>]*>/i);
+ if(!match)return toast('Нужен код с iframe от Яндекс Музыки');
+ let url;
+ try{url=new URL(match[1]);}catch(e){return toast('Некорректная ссылка плеера')}
+ if(!['music.yandex.ru','music.yandex.com','music.yandex.kz','music.yandex.by'].includes(url.hostname))return toast('Разрешён только плеер Яндекс Музыки');
+ data.music=url.href;save();renderMusic();toast('Плеер добавлен');
+}
+function renderMusic(){
+ document.getElementById('musicCode').value=data.music?`<iframe src="${data.music}"></iframe>`:'';
+ document.getElementById('musicPlayer').innerHTML=data.music?`<iframe class="music-frame" src="${safe(data.music)}" allow="autoplay; encrypted-media; fullscreen; clipboard-write" loading="lazy"></iframe>`:'<div class="list-empty">Добавь плеер Яндекс Музыки, чтобы он появился здесь.</div>';
+}
+function clearMusic(){data.music='';save();renderMusic();toast('Плеер удалён')}
+function setAccent(color){
+ data.settings.accent=color;applySettings();save();
+ document.querySelectorAll('.swatch').forEach(s=>s.classList.toggle('selected',s.dataset.color===color));
+}
+function setTheme(theme){data.settings.theme=theme;applySettings();save()}
+function setDensity(d){data.settings.density=d;applySettings();save()}
+function applySettings(){
+ const s=data.settings||defaults.settings;
+ document.documentElement.style.setProperty('--accent',s.accent||defaults.settings.accent);
+ document.documentElement.style.setProperty('--accent2',s.accent||defaults.settings.accent);
+ if(s.theme==='light'){
+  document.documentElement.style.setProperty('--bg','#eeeeef');
+  document.documentElement.style.setProperty('--panel','#ffffff');
+  document.documentElement.style.setProperty('--panel2','#f4f4f5');
+  document.documentElement.style.setProperty('--border','#dddddf');
+  document.documentElement.style.setProperty('--text','#242428');
+  document.documentElement.style.setProperty('--muted','#77777e');
+  document.querySelector('.sidebar').style.background='#f7f7f8';
+ }else{
+  ['--bg','#0b0b0d','--panel','#131316','--panel2','#19191d','--border','#29292e','--text','#f1f0ed','--muted','#85848a'].reduce((_,v,i,a)=>{if(i%2===0)document.documentElement.style.setProperty(v,a[i+1]);return 0},0);
+  document.querySelector('.sidebar').style.background='#101013';
+ }
+ document.body.style.fontSize=s.density==='compact'?'13px':'14px';
+ document.querySelectorAll('.card').forEach(c=>c.style.padding=s.density==='compact'?'13px':'');
+ const theme=document.getElementById('themeSelect');if(theme)theme.value=s.theme||'dark';
+ const density=document.getElementById('densitySelect');if(density)density.value=s.density||'normal';
+ const intro=document.getElementById('introToggle');if(intro)intro.checked=s.intro!==false;
+ const skip=document.getElementById('skipToggle');if(skip)skip.checked=s.skip!==false;
+}
+function saveSetting(k,v){data.settings[k]=v;save()}
+function resetAppearance(){
+ data.settings={...defaults.settings};applySettings();save();
+ document.querySelectorAll('.swatch').forEach(s=>s.classList.toggle('selected',s.dataset.color===data.settings.accent));
+ toast('Оформление сброшено');
+}
+document.getElementById('swatches').addEventListener('click',e=>{
+ const b=e.target.closest('.swatch');if(b)setAccent(b.dataset.color);
+});
+function toggleNotifications(on){
+ if(on&&'Notification'in window){
+  Notification.requestPermission().then(p=>{data.notifications=p==='granted';save();document.getElementById('notifyToggle').checked=data.notifications;toast(p==='granted'?'Уведомления разрешены':'Разрешение не получено')});
+ }else{data.notifications=false;save();toast('Уведомления выключены')}
+}
+function exportData(){
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ASCEND-backup.json';a.click();URL.revokeObjectURL(a.href);toast('Резервная копия подготовлена');
+}
+function importData(event){
+ const file=event.target.files[0];if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{try{const incoming=JSON.parse(reader.result);if(!incoming||!Array.isArray(incoming.tasks))throw new Error();data={...defaults,...incoming};save();location.reload()}catch(e){toast('Не удалось прочитать резервную копию')}};
+ reader.readAsText(file);
+}
+function clearAllData(){
+ if(!confirm('Точно удалить все задачи, цели, проекты и записи? Это действие нельзя отменить.'))return;
+ localStorage.removeItem(KEY);location.reload();
+}
+function renderAll(){
+ renderOverview();renderTasks();renderProjects();renderGoals();renderDevelopment();
+ renderCharts();renderAnalytics();renderJournal();renderAchievements();renderProfile();renderMusic();
+}
+document.getElementById('todayLabel').textContent=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+['taskDate','journalDate'].forEach(id=>document.getElementById(id).value=today());
+applySettings();
+renderAll();
+
+/* Cinematic procedural planet intro */
+const canvas=document.getElementById('space'),ctx=canvas.getContext('2d');
+let W,H,particles=[],rocks=[],phase=0,startTime=performance.now(),introFinished=false;
+function resize(){W=canvas.width=innerWidth*devicePixelRatio;H=canvas.height=innerHeight*devicePixelRatio;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);W=innerWidth;H=innerHeight}
+addEventListener('resize',resize);resize();
+for(let i=0;i<180;i++)particles.push({x:Math.random(),y:Math.random(),r:Math.random()*1.5,v:Math.random()*.15+.02});
+function drawPlanet(time){
+ if(introFinished)return;
+ const t=(time-startTime)/1000;
+ phase=t;
+ ctx.fillStyle='rgba(2,3,7,.28)';ctx.fillRect(0,0,W,H);
+ for(const p of particles){
+  p.y+=p.v*.0009;if(p.y>1)p.y=0;
+  ctx.fillStyle=`rgba(210,220,245,${.25+Math.sin(t+p.x*20)*.2})`;
+  ctx.beginPath();ctx.arc(p.x*W,p.y*H,p.r,0,Math.PI*2);ctx.fill();
+ }
+ let cx=W/2,cy=H*.48;
+ let radius=Math.min(W,H)*(.025+Math.min(1,t/9)*.29);
+ if(t<10){
+  let glow=ctx.createRadialGradient(cx,cy,radius*.5,cx,cy,radius*1.5);
+  glow.addColorStop(0,'rgba(255,170,75,.04)');glow.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
+  const grad=ctx.createRadialGradient(cx-radius*.3,cy-radius*.35,radius*.08,cx,cy,radius);
+  grad.addColorStop(0,'#9e9b8e');grad.addColorStop(.45,'#424650');grad.addColorStop(.8,'#222b3a');grad.addColorStop(1,'#090c15');
+  ctx.save();ctx.beginPath();ctx.arc(cx,cy,radius,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
+  ctx.clip();
+  for(let i=0;i<65;i++){
+   const a=i*2.399,r=Math.sqrt(i/65)*radius*.95;
+   const x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;
+   ctx.fillStyle=`rgba(${70+Math.random()*35},${70+Math.random()*35},${75+Math.random()*40},.12)`;
+   ctx.beginPath();ctx.arc(x,y,Math.random()*radius*.025,0,Math.PI*2);ctx.fill();
+  }
+  const crackTime=Math.max(0,(t-5)/5);
+  if(crackTime>0){
+   ctx.lineCap='round';
+   for(let i=0;i<7;i++){
+    const a=i*2.4+t*.12;
+    const sx=cx+Math.cos(a)*radius*.1,sy=cy+Math.sin(a)*radius*.1;
+    ctx.beginPath();ctx.moveTo(sx,sy);
+    for(let j=1;j<7;j++){
+     const rr=radius*(.1+j*.12);
+     ctx.lineTo(cx+Math.cos(a+j*.16+Math.sin(j*5+i)*.1)*rr,cy+Math.sin(a+j*.16+Math.cos(j*4)*.1)*rr);
+    }
+    ctx.strokeStyle=`rgba(255,${110+Math.sin(t*4+i)*50},35,${crackTime*.9})`;
+    ctx.lineWidth=1+crackTime*2;ctx.shadowColor='#ff632a';ctx.shadowBlur=12;ctx.stroke();
+   }
+  }
+  ctx.restore();
+  ctx.beginPath();ctx.arc(cx,cy,radius,0,Math.PI*2);ctx.strokeStyle='rgba(224,190,132,.3)';ctx.lineWidth=1;ctx.stroke();
+  if(t>8.5){
+   const f=Math.min(1,(t-8.5)/1.5);
+   ctx.fillStyle=`rgba(255,220,170,${f*.95})`;ctx.fillRect(0,0,W,H);
+   if(t>10)finishIntro();
+  }
+ }else{
+  const p=t-10;
+  const alpha=Math.max(0,1-p/2);
+  ctx.fillStyle=`rgba(255,226,170,${alpha*.14})`;ctx.fillRect(0,0,W,H);
+  if(p>1.8)finishIntro();
+ }
+ requestAnimationFrame(drawPlanet);
+}
+function finishIntro(){
+ if(introFinished)return;introFinished=true;
+ const intro=document.getElementById('intro');
+ intro.style.transition='opacity 1.2s';intro.style.opacity='0';
+ setTimeout(()=>{intro.style.display='none';document.getElementById('app').style.display='block'},1100);
+}
+if(data.settings.intro===false){finishIntro()}else{requestAnimationFrame(drawPlanet)}
+if(data.settings.skip===false)document.querySelector('.intro-skip').style.display='none';
+</script>
+</body>
+</html>
